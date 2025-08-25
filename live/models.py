@@ -42,6 +42,7 @@ class TextLeft(models.Model):
 class Users(models.Model):
      name = models.CharField(max_length=400, verbose_name="Nomi:")
      body  = models.TextField()
+     text = models.TextField()
 
      def __str__(self):
           return self.name
