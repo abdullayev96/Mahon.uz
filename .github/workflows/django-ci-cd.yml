@@ -45,7 +45,7 @@ jobs:
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
           script: |
-            cd /home/myproject   # VPSdagi project papkasi
+            cd /root/Mahon.uz   # VPSdagi project papkasi
             git pull origin main
             source venv/bin/activate
             pip install -r requirements.txt
