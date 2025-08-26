@@ -2,7 +2,7 @@ name: Django CI/CD
 
 on:
   push:
-    branches: [ "main" ]   # main branchga push bo'lsa ishlaydi
+    branches: [ "main" ]  # Main branchga push qilinsa ishga tushadi
 
 jobs:
   test:
@@ -19,10 +19,10 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
+          python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      - name: Run migrations (check only)
+      - name: Run migrations check
         run: |
           python manage.py makemigrations --check --dry-run
 
@@ -39,17 +39,30 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Deploy to VPS via SSH
-        uses: appleboy/ssh-action@master
+        uses: appleboy/ssh-action@v0.1.5
         with:
           host: ${{ secrets.SERVER_IP }}
           username: ${{ secrets.SERVER_USER }}
           key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 22
           script: |
-            cd /root/Mahon.uz   # VPSdagi project papkasi
-            git pull origin main
-            source venv/bin/activate
-            pip install -r requirements.txt
+            # Project papkasiga o‘tish
+            cd /root/Mahon.uz
+            
+            # GitHub dan oxirgi kodni olish
+            git fetch --all
+            git reset --hard origin/main
+            
+            # Virtual environment faollashtirish
+            source /root/Mahon.uz/venv/bin/activate
+            
+            # Paketlarni yangilash
+            pip install --upgrade -r requirements.txt
+            
+            # Django migrate va static fayllar
             python manage.py migrate --noinput
             python manage.py collectstatic --noinput
+            
+            # Serverni restart qilish
             sudo systemctl restart gunicorn
             sudo systemctl restart nginx
